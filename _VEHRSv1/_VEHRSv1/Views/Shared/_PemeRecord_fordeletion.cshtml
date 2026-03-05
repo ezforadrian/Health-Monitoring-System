@@ -1,0 +1,135 @@
+﻿@model PagedResult<_VEHRSv1.Models.vmSearchPeme>
+
+<div class="container-fluid">
+    <div class="card o-hidden border-0 shadow-lg my-4">
+        <div class="card-body p-0">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="p-5">
+                        <div class="text-center">
+                            <h1 class="h4 text-gray-900 mb-4">Search Pre-Employment Record</h1>
+                        </div>
+                        <form id="searchForm" method="get" action="@Url.Action("SearchPemeRecord", "SearchRecord")">
+                            <input class="form-control" type="text" name="searchQuery" value="@ViewData["searchQuery"]" placeholder="Search by Employee ID or Name..." />
+                            <button type="submit">Search</button>
+                        </form>
+
+
+                        <table class="table table-striped table-hover">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Employee ID</th>
+                                    <th>Full Name</th>
+                                    <th>Birthdate</th>
+                                    <th>Position</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (Model?.Results?.Any() == true)
+                                {
+                                    int x = 1;
+                                    foreach (var record in Model.Results)
+                                    {
+                                        <tr>
+                                            <td>@x</td>
+                                            <td>@record.Idnumber</td>
+                                            <td>@record.LastName, @record.FirstName @record.MiddleName</td>
+                                            <td>@record.Birthdate?.ToString("MM/dd/yyyy")</td> <!-- Check for null -->
+                                            <td>@record.PositionDescription</td>
+                                            <td>@record.StatusDescription</td>
+                                            <td>
+                                                <button class="btn btn-primary update-btn btn-sm" data-id="@record.PemeidString">Update</button>
+                                            </td>
+                                        </tr>
+                                        x++;
+                                    }
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td colspan="7">No records found.</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+
+                        <div class="pagination">
+                            <span class="total-records">Total Records: @Model.TotalRecords</span>
+
+                            <div class="pagination-controls">
+                                @if (Model.CurrentPage > 1)
+                                {
+                                    <a href="javascript:void(0);" class="pagination-link" data-page="@(Model.CurrentPage - 1)" data-query="@ViewData["searchQuery"]">PREV</a>
+                                }
+
+                                @for (int i = 1; i <= (Model.TotalRecords + Model.PageSize - 1) / Model.PageSize; i++)
+                                {
+                                    if (i == Model.CurrentPage)
+                                    {
+                                        <span class="current-page">@i</span>
+                                    }
+                                    else
+                                    {
+                                        <a href="javascript:void(0);" class="pagination-link" data-page="@i" data-query="@ViewData["searchQuery"]">@i</a>
+                                    }
+                                }
+
+                                @if (Model.CurrentPage < (Model.TotalRecords + Model.PageSize - 1) / Model.PageSize)
+                                {
+                                    <a href="javascript:void(0);" class="pagination-link" data-page="@(Model.CurrentPage + 1)" data-query="@ViewData["searchQuery"]">NEXT</a>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+<script>
+    // AJAX form submission for search
+    $('#searchForm').on('submit', function (e) {
+        e.preventDefault(); // Prevent the default form submission
+
+        var form = $(this);
+        var formData = form.serialize(); // Serialize form data
+        var target = '#nav-peme'; // Specify the target tab where results will be shown
+
+        $.get(form.attr('action'), formData, function (data) {
+            $(target).html(data).addClass('show active');
+            $('#nav-recordswithid').removeClass('show active'); // Remove 'active' class from other tabs if needed
+        }).fail(function () {
+            alert('Error loading search results');
+        });
+    });
+
+    // AJAX handling for pagination links
+    $(document).on('click', '.pagination-link', function () {
+        var page = $(this).data('page');
+        var query = $(this).data('query');
+        var target = '#nav-peme';
+
+        $.get('@Url.Action("SearchPemeRecord", "SearchRecord")', { page: page, searchQuery: query }, function (data) {
+            $(target).html(data).addClass('show active');
+        }).fail(function () {
+            alert('Error loading page');
+        });
+    });
+
+
+
+    // Handle update button click
+    $(document).on('click', '.update-btn', function () {
+        var recordId = $(this).data('id');
+        var updateUrl = '@Url.Action("UpdateRecord", "Peme")' + '?id=' + recordId;
+        window.location.href = updateUrl;
+    });
+</script>

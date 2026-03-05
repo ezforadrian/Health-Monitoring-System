@@ -1,0 +1,85 @@
+﻿@model _VEHRSv1.Models.vmAMEExcelUpload.ViewModelExcelUploadInformation
+
+
+<div class="row">
+    <div class="col-lg-4">
+
+        <div class="card position-relative">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Annual Medical Checkup Excel</h6>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                </div>
+                <div class="small mb-1">Browse AME Excel File:</div>
+                <form asp-action="UploadAmeExcelPost" enctype="multipart/form-data" method="post">
+                    <div class="form-group">
+                        <input class="form-control form-control-lg" type="file" name="excelFile" accept=".xlsx,.xls" />
+                    </div>
+                    <button type="submit" class="btn btn-primary">Upload</button>
+                </form>
+                <br />
+                <p class="mb-0 small">
+                    Note: The column header should be ...
+                </p>
+            </div>
+        </div>
+
+
+        @if (!string.IsNullOrEmpty(Model.Message))
+        {
+            <br />
+            <div class="alert alert-info">
+                @Model.Message
+            </div>
+        }
+
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <br />
+            <div class="alert alert-danger">
+                @TempData["ErrorMessage"]
+            </div>
+        }
+
+
+        @if (Model.UploadedRecordsCount > 0)
+        {
+            <br />
+            <div class="alert alert-info">
+                <p>@Model.UploadedRecordsCount records saved.</p>
+            </div>
+        }
+
+        @if (Model.DuplicateRecordsCount > 0)
+        {
+            <br />
+            <div class="alert alert-info">
+                <p>@Model.DuplicateRecordsCount duplicate records found.</p>
+            </div>
+        }
+
+
+        @if (Model.FailedRecordsCount > 0)
+        {
+            <br />
+            <div class="alert alert-info">
+                <p>@Model.FailedRecordsCount record(s) failed to process:</p>
+                <ul>
+                    @foreach (var failedRecord in Model.FailedRecordsDetails)
+                    {
+                        <li>Row @failedRecord.RowNumber: @failedRecord.ErrorMessage</li>
+                    }
+                </ul>
+            </div>
+        }
+
+
+
+
+    </div>
+    <div class="col-lg-8"></div>
+
+
+
+

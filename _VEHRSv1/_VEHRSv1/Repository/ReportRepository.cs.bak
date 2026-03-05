@@ -1,0 +1,79 @@
+﻿using _VEHRSv1.Interface;
+using _VEHRSv1.Models;
+using _VEHRSv1.Services;
+using Microsoft.EntityFrameworkCore;
+
+namespace _VEHRSv1.Repository
+{
+    public class ReportRepository : IReportRepository
+    {
+        private readonly HswmsContext _hswmsContext;
+        private readonly EncryptionService _encryptionService;
+        private const string _key = "thequickbrownfox";
+
+        public ReportRepository(HswmsContext hswmsContext, EncryptionService encryptionService)
+        {
+            _hswmsContext = hswmsContext;
+            _encryptionService = encryptionService;
+        }
+
+        public async Task<List<ExportType>> GetAllActiveExportTypes()
+        {
+            return await _hswmsContext.AppReferences.Where(x => x.ReferenceGroup == 10)
+                                .Select(x => new ExportType { 
+                                    ReferenceId = x.ReferenceId,
+                                    ReferenceGroupId = x.ReferenceGroup,
+                                    ReferenceName = x.ReferenceName,
+                                    ReferenceCode = x.ReferenceCode,
+                                    Sort = x.Sort,
+                                    ReferenceDescription = x.ReferenceDescription,
+                                    RefIdEnc = _encryptionService.Encrypt(_key, x.ReferenceId.ToString())
+                                })
+                                .ToListAsync();
+        }
+
+        public List<PemeReportResult> GetPemeReportResultByDateRangeAndStatusId(DateOnly startdate, DateOnly enddate, int status)
+        {
+            try
+            {
+                if (status == -100)
+                {
+
+                }
+                var query = from a in _hswmsContext.Pemeheaders
+                            join b in _hswmsContext.Pemedetails on a.Pemeid equals b.Pemeid into joinAB
+                            from ab in joinAB.DefaultIfEmpty()
+                            join c in _hswmsContext.Pemestatuses on a.StatusId equals c.StatusId into statusJoin
+                            from c in statusJoin.DefaultIfEmpty()
+                            join d in _hswmsContext.AppReferences on ab.MedicalEvaluatorId equals d.ReferenceId into reference
+                            from d in reference.DefaultIfEmpty()
+                            where (a.CreatedDateTime >= startdate.ToDateTime(TimeOnly.MinValue)) &&
+                                  (a.CreatedDateTime <= enddate.ToDateTime(TimeOnly.MinValue)) 
+                            orderby a.CreatedDateTime ascending, a.LastName, a.FirstName, a.MiddleName
+                            select new PemeReportResult
+                            {
+                                EmployeeId = a.Idnumber ?? "Not Available",
+                                FullName = a.LastName + ", " + a.FirstName + " " + a.MiddleName ,
+                                BirthDate = a.Birthdate,
+                                ExamDate = DateOnly.Parse(ab.ExamDate.ToString("MM/dd/yyyy")),
+                                StatusDescription = c.Description,
+                                Status = c.StatusId,
+                                MedicalEvaluator = d.ReferenceName
+                            };
+                if (status != -100)
+                {
+                    query = query.Where(a => a.Status == status);
+                }
+
+                var result = query.ToList();
+
+                return result;
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+    }
+}

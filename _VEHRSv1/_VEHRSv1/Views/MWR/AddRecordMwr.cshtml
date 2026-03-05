@@ -1,0 +1,383 @@
+﻿@using System
+@using System.Globalization
+
+@{
+    ViewData["Title"] = "MWR Activities";
+}
+
+@* <link href="~/lib/bootstrap/dist/css/datatables.min.css" rel="stylesheet"> *@
+<script src="~/lib/jquery/dist/datatables.min.js"></script>
+
+<h2>HSWD</h2>
+
+<div>
+    <div>
+        <h5>Add HSWD activities</h5>
+        <div class="border rounded" style="padding:2%;box-shadow: 1px 1px 5px 1px #b2b1b1;">
+            <div>
+                <form>
+                    @Html.AntiForgeryToken()
+                    <div class="form-group row mb-3" hidden>
+                        <label for="fieldActivityID" class="col-sm-2 col-form-label">Activity ID<span class="text-danger">*</span>:</label>
+                        <div class="col-sm-9">
+                            <input id="fieldActivityID" type="text" class="form-control" placeholder="Enter ID" />
+                        </div>
+                    </div>
+                    <div class="form-group row mb-3">
+                        <label for="fieldActivityName" class="col-sm-2 col-form-label">Activity Name<span class="text-danger">*</span>:</label>
+                        <div class="col-sm-9">
+                            <input id="fieldActivityName" type="text" class="form-control" placeholder="Enter activity" required />
+                        </div>
+                    </div>
+                    <div class="form-group row mb-3">
+                        <label for="fieldActivity" class="col-sm-2 col-form-label">Activity Type<span class="text-danger">*</span>:</label>
+                        <div class="col-sm-9">
+                            <select id="fieldActivity" class="form-control">
+                                <option value="0">Select an activity</option>
+                            </select>
+                        </div>
+                    </div>
+                
+
+                    <div class="text-right">
+                        <input type="button" class="btn btn-success" id="btnAdd" value="Add" />
+                        <input type="button" class="btn btn-success" id="btnUpdateMwr" value="Update" hidden />
+                        <input type="button" class="btn btn-danger" id="btnCancelMode" value="Cancel" />
+                    </div>
+                </form>
+            </div>
+            
+
+        </div>
+    </div>
+</div>
+<br />
+<div>
+    <table id="MwrTable" class="table table-striped table-sm">
+        <thead class="w-auto">
+            <tr class="" style="color:black;">
+                <th style="width:10%;">ID</th>
+                <th style="width:20%;">MWR Activity</th>
+                <th style="width:20%;">Activity Type</th>
+                <th style="width:20%;">Date/Time Created</th>
+                @* <th style="width:20%;">Created By</th> *@
+                <th style="width:auto;">Option</th>
+                @* <th style="width:auto;"></th> *@
+            </tr>
+        </thead>
+        <tbody id="MwrTableBody"></tbody>
+    </table>
+</div>
+
+
+<div class="modal fade" id="modalAddParticipant" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5>Add Participant</h5>
+            </div>
+
+            <div class="modal-body">
+                <div class="form-group row mb-3" hidden >
+                    <label for="fieldParticipantActivityID" class="col-sm-2 col-form-label">Activity ID:</label>
+                    <div class="col-sm-9">
+                        <input id="fieldParticipantActivityID" type="text" class="form-control-plaintext" placeholder="Enter ID" disabled/>
+                    </div>
+                </div>
+                <div class="form-group row mb-3">
+                    <label for="fieldActName" class="col-sm-2 col-form-label" >HSWD Activity:</label>
+                    <div class="col-sm-4">
+                        <input id="fieldActName" type="text" class="form-control-plaintext"  disabled />
+                    </div>
+
+                    <div class="form-group row mb-8">
+                        <label for="fieldActivityDate" class="col-sm-3 col-form-label">Date:</label>
+                        <div class="col-sm-9">
+                            <select id="fieldActivityDate" class="form-control">
+                                <option value="0">Select Date</option>
+                            </select>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="form-group row mb-4" style="margin-top:-3%;">
+                    <label for="fieldActType" class="col-sm-2 col-form-label">HSWD Type:</label>
+                    <div class="col-sm-5">
+                        <input id="fieldActType" type="text" class="form-control-plaintext" disabled />
+                    </div>
+                </div>
+
+                <div class="border rounded" style="padding:2%;box-shadow: 1px 1px 5px 1px #b2b1b1;">
+                    <div>
+
+                        <form>
+                            @Html.AntiForgeryToken()
+                            <div class="form-group row mb-3">
+                                <label for="fieldParticipantID" class="col-sm-2 col-form-label">ID Number <span class="text-danger">*</span>:</label>
+                                <div class="col-sm-9">
+                                    <input id="fieldParticipantID" type="text" class="form-control" placeholder="Enter ID Number" required />
+                                </div>
+                            </div>
+                            <div class="form-group row mb-3">
+                                <label for="fieldLastName" class="col-sm-2 col-form-label">Last Name:</label>
+                                <div class="col-sm-9">
+                                    <input id="fieldLastName" type="text" class="form-control" disabled />
+                                </div>
+                            </div>
+
+                            <div class="form-group row mb-3">
+                                <label for="fieldFirstName" class="col-sm-2 col-form-label">First Name:</label>
+                                <div class="col-sm-9">
+                                    <input id="fieldFirstName" type="text" class="form-control" disabled />
+                                </div>
+                            </div>
+
+                            <div class="form-group row mb-3">
+                                <label for="fieldMiddleInitial" class="col-sm-2 col-form-label">Middle Initial:</label>
+                                <div class="col-sm-9">
+                                    <input id="fieldMiddleInitial" type="text" class="form-control" disabled />
+                                </div>
+                            </div>
+
+                            <div class="form-group row mb-3">
+                                <label for="fieldDepartment" class="col-sm-2 col-form-label">Department/Division:</label>
+                                <div class="col-sm-9">
+                                    <input id="fieldDepartment" type="text" class="form-control" disabled />
+                                </div>
+                            </div>
+
+                             <div class="form-group row mb-3">
+                                <label for="fieldJobTitle" class="col-sm-2 col-form-label">Job Title:</label>
+                                <div class="col-sm-9">
+                                    <input id="fieldJobTitle" type="text" class="form-control" disabled />
+                                </div>
+                            </div>
+
+                            <div class="text-right">
+                                <input type="button" class="btn btn-success" id="btnAddParticipant" value="Add" />
+                                <input type="button" class="btn btn-danger" id="btnCancelModal" value="Cancel">
+                            </div>
+                        </form>
+                    </div>
+
+
+                </div>
+                <br/>
+                @* Table *@
+                <div>
+                    <table id="MwrAddParticipant" class="table table-striped table-sm">
+                        <thead class="w-auto">
+                            <tr class="" style="color:black;">
+                                <th>ID Number</th>
+                                <th>Full Name</th>
+                                <th>Date Hired</th>
+                                <th>Position</th>
+                                <th>Birth Date</th>
+                                <th>Action</th>
+                                @* <th style="width:auto;"></th> *@
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
+                
+            
+            </div>
+
+            <div class="modal-footer d-flex justify-content-evenly">
+                <button class="btn btn-secondary d-flex" style="padding-left: 40px;padding-right: 40px;" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+@* Delete activity *@
+<div class="modal fade" id="modalConfirmDeletemwr" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5>System Message</h5>
+            </div>
+
+            <div class="modal-body">
+
+                <span>Are you sure you want to delete this HSWD Activity?</span>
+                <div class="input-group m-2">
+                    <div class="row w-100">
+                        <div class="col-sm-4" style="margin-right:-5%">
+                            <label for="fieldMwrNamemodal">Activity Name:</label>
+                        </div>
+                        <div class="col-sm-4" style="margin-top:-1.5%">
+                            <input id="fieldMwrNamemodal" type="text" class="form-control-plaintext" disabled />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer d-flex justify-content-evenly">
+                    <button class="btn btn-success d-flex" id="btnConfirmDelete" style="padding-left: 40px;padding-right: 40px;" data-bs-dismiss="modal">Yes</button>
+                    <button class="btn btn-danger d-flex" style="padding-left: 40px;padding-right: 40px;" data-bs-dismiss="modal">No</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<div class="modal fade" id="modalAddMwrDate" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5>Add Activity Date</h5>
+            </div>
+           
+
+            <div class="modal-body">
+                <div class="form-group row mb-4">
+                    <label for="fieldActIdDate" class="col-sm-4 col-form-label">HSWD Activty ID:</label>
+                    <div class="col-sm-5">
+                        <input id="fieldActIdDate" type="text" class="form-control-plaintext" disabled />
+                    </div>
+                </div>
+                <div class="form-group row mb-4" style="margin-top:-3%;">
+                    <label for="fieldActNameDate" class="col-sm-4 col-form-label">HSWD Activity:</label>
+                    <div class="col-sm-5">
+                        <input id="fieldActNameDate" type="text" class="form-control-plaintext" disabled />
+                    </div>
+                </div>
+                <div class="form-group row mb-4" style="margin-top:-3%;">
+                    <label for="fieldActTypeDate" class="col-sm-4 col-form-label">HSWD Type:</label>
+                    <div class="col-sm-5">
+                        <input id="fieldActTypeDate" type="text" class="form-control-plaintext" disabled />
+                    </div>
+                </div>
+
+                <div class="border rounded" style="padding:2%;box-shadow: 1px 1px 5px 1px #b2b1b1;">
+                    <div class="center">
+
+                        <form>
+                            @Html.AntiForgeryToken()
+                            <div class="form-group row mb-3 ">
+                                <label for="fieldMwrDate" class="col-sm-4 col-form-label" style="padding-left:10%;">Activity Date:</label>
+                                <div class='input-group date col-sm-6' style="padding-left:5%;">
+                                    <input type='date' class="form-control"  id="fieldMwrDate" />
+                                    <span class="input-group-addon">
+                                        <span class="glyphicon glyphicon-calendar"></span>
+                                    </span>
+                                </div>
+                            </div>
+                           
+
+                            <div class="text-right">
+                                <input type="button" class="btn btn-success" id="btnAddDate" value="Add" />
+                                <input type="button" class="btn btn-danger" id="btnCanceDatelModal" value="Cancel">
+                            </div>
+                        </form>
+                    </div>
+
+
+                </div>
+                <br />
+                @* Table *@
+                <div>
+                    <table id="MwrActivityDate" class="table table-striped" style="width:100%;">
+                        <thead class="w-auto">
+                            <tr class="" style="color:black;">
+                                <th >Activity Date</th>
+                                <th >Option</th>
+                                @* <th style="width:auto;"></th> *@
+                            </tr>
+                        </thead>
+                        <tbody id="MwrAddDateTableBody"></tbody>
+                    </table>
+                </div>
+
+
+            </div>
+
+            <div class="modal-footer d-flex justify-content-evenly">
+                <button class="btn btn-secondary d-flex" style="padding-left: 40px;padding-right: 40px;" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" id="modalConfirmUpdate" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5>System Message</h5>
+            </div>
+
+            <div class="modal-body">
+                <span></span>
+                <span>Are you sure you want to update this HSWD Activity?</span>
+            </div>
+
+            <div class="modal-footer d-flex justify-content-evenly">
+                <button class="btn btn-success d-flex" id="btnConfirmUpdate" style="padding-left: 40px;padding-right: 40px;" data-bs-dismiss="modal">Yes</button>
+                <button class="btn btn-danger d-flex" style="padding-left: 40px;padding-right: 40px;" data-bs-dismiss="modal">No</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@* Delete Activity Date *@
+<div class="modal fade" id="modalConfirmDeletemwrDate" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5>System Message</h5>
+            </div>
+
+            <div class="modal-body">
+
+                <span>Are you sure you want to delete this HSWD Activity Date?</span>
+                <div class="input-group m-2">
+                    <div class="row w-100">
+                        <div class="col-sm-4" style="margin-right:-5%">
+                            <label for="fieldMwrNameDatemodal">Activity Date:</label>
+                        </div>
+                        <div class="col-sm-4" style="margin-top:-1.5%">
+                            <input id="fieldMwrNameDatemodal" type="text" class="form-control-plaintext" disabled />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer d-flex justify-content-evenly">
+                    <button class="btn btn-success d-flex" id="btnConfirmDateDelete" style="padding-left: 40px;padding-right: 40px;" data-bs-dismiss="modal">Yes</button>
+                    <button class="btn btn-danger d-flex" style="padding-left: 40px;padding-right: 40px;" data-bs-dismiss="modal">No</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" id="modalSystemMessage" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog " role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5>System Message</h5>
+            </div>
+
+            <div class="modal-body">
+                <span id="txtSystemMessage"></span>
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="CloseModal" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<script src="~/js/Mwr/_mwrActivities.js">
+</script>

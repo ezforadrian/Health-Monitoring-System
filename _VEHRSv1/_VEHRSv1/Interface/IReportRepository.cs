@@ -1,0 +1,12 @@
+﻿using _VEHRSv1.Models;
+
+namespace _VEHRSv1.Interface
+{
+    public interface IReportRepository
+    {
+        Task<List<ExportType>> GetAllActiveExportTypes();
+        List<PemeReportResult> GetPemeReportResultByDateRangeAndStatusId(DateOnly startdate, DateOnly enddate, int status);
+        List<vmTestDetails> GetAllActiveTest();
+        List<AmeReportResult> GetAmeReportResultByDateRangeAndTestId(DateOnly startdate, DateOnly enddate, int status);
+    }
+}

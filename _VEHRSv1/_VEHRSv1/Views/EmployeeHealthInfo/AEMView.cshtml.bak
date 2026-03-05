@@ -1,0 +1,130 @@
+﻿@using Newtonsoft.Json
+@model vmEmployeeHealthRecord
+@Html.AntiForgeryToken();
+<style>
+    input {
+        text-transform: uppercase;
+    }
+</style>
+
+<div class="container-fluid">
+    <div class="card o-hidden border-0 shadow-lg my-4">
+        <div class="card-body p-0">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="p-5">
+                        <div class="text-center">
+                            <h1 class="h4 text-gray-900 mb-4">Employee Details</h1>
+                        </div>
+                        <hr />
+                        @if (TempData["SuccessMessage"] != null)
+                        {
+                            <div class="alert alert-success" style="display: block;">@TempData["SuccessMessage"]</div>
+                        }
+                        else
+                        {
+                            <div class="alert alert-success" style="display: none;"></div>
+                        }
+
+                        <input type="hidden" asp-for="vmEmployeeHealthInfo.EmployeeDetailAS400.IdEnc" name="IdEnc" value="@Model.vmEmployeeHealthInfo.EmployeeDetailAS400.IdEnc" />
+                        <!-- Personal Details -->
+                        <div class="form-group row">
+                            <div class="col-sm-4">
+                                <label class="col-form-label-sm">Last Name</label>
+                                <input type="text" class="form-control" asp-for="vmEmployeeHealthInfo.EmployeeDetailAS400.LastName" name="LastName" readonly />
+                            </div>
+                            <div class="col-sm-4">
+                                <label class="col-form-label-sm">First Name</label>
+                                <input type="text" class="form-control" asp-for="vmEmployeeHealthInfo.EmployeeDetailAS400.FirstName" name="FirstName" readonly />
+                            </div>
+                            <div class="col-sm-4">
+                                <label class="col-form-label-sm">Middle Name</label>
+                                <input type="text" class="form-control" asp-for="vmEmployeeHealthInfo.EmployeeDetailAS400.MiddleName" name="MiddleName" readonly />
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <div class="col-sm-4">
+                                <label class="col-form-label-sm">Date Hired</label>
+                                <input type="text" class="form-control" asp-for="vmEmployeeHealthInfo.EmployeeDetailAS400.DateHired" name="DateHired" readonly />
+                            </div>
+
+                            <div class="col-sm-4">
+                                <label class="col-form-label-sm">Position</label>
+                                <input type="text" class="form-control" asp-for="vmEmployeeHealthInfo.EmployeeDetailAS400.Position" name="Position" readonly />
+                            </div>
+
+                            <div class="col-sm-4">
+                                <label class="col-form-label-sm">BirthDate</label>
+                                <input type="text" class="form-control" asp-for="vmEmployeeHealthInfo.EmployeeDetailAS400.BirthDate" name="BirthDate" readonly />
+                            </div>
+                        </div>
+
+                        <hr />
+                        <br />
+                        <nav>
+                            <div class="nav nav-tabs" id="nav-tab" role="tablist">
+                                @* <button class="nav-link active" id="nav-peme-tab" data-bs-toggle="tab" data-bs-target="#nav-peme" type="button" role="tab" aria-controls="nav-peme" aria-selected="true">Pre Employment</button> *@
+                                <button class="nav-link" id="nav-ame-tab" data-bs-toggle="tab" data-bs-target="#nav-ame" type="button" role="tab" aria-controls="nav-ame" aria-selected="false">Annual Medical</button>
+                                <button class="nav-link" id="nav-ecu-tab" data-bs-toggle="tab" data-bs-target="#nav-ecu" type="button" role="tab" aria-controls="nav-ecu" aria-selected="false">Executive Checkup</button>
+                                <button class="nav-link" id="nav-mwr-tab" data-bs-toggle="tab" data-bs-target="#nav-mwr" type="button" role="tab" aria-controls="nav-mwr" aria-selected="false">MWR</button>
+                            </div>
+                        </nav>
+                        <div class="tab-content" id="nav-tabContent">
+                            @* <div class="tab-pane fade show active" id="nav-peme" role="tabpanel" aria-labelledby="nav-peme-tab">
+                                <!-- Load Pre Employment content directly here -->
+                                @Html.Partial("_PemeRecord")
+                            </div> *@
+                            <div class="tab-pane fade show active" id="nav-ame" role="tabpanel" aria-labelledby="nav-ame-tab">
+                                <!-- Load Annual Medical content directly here -->
+                                @Html.Partial("_AmeRecord")
+                            </div>
+                            <div class="tab-pane fade " id="nav-ecu" role="tabpanel" aria-labelledby="nav-ecu-tab">
+                                <!-- Load Executive Checkup content directly here -->
+                                @Html.Partial("_EcuRecord", Model)
+                            </div>
+                            <div class="tab-pane fade" id="nav-mwr" role="tabpanel" aria-labelledby="nav-mwr-tab">
+                                <!-- Load MWR content directly here -->
+                                @Html.Partial("_MwrRecord")
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+@section Scripts {
+    <script>
+        var GlobalBranch = @Html.Raw(ViewBag.Branch);
+        function loadBranchSelect() {
+            loadBranchSelectSub(GlobalBranch, "");
+        }
+
+        var encId = '@Model.EmpIdNumberEnc'; // Ensure this is a string
+        var addEcuUrl = '@Url.Action("AddEcuRecord", "Ecu")';
+        var aemViewUrl = '@Url.Action("AEMView", "EmployeeHealthInfo", new { id = "__ENC_ID__" })';
+        aemViewUrl = aemViewUrl.replace("__ENC_ID__", encId); // Replace placeholder with actual encId
+        function submitEcuForm() {
+            submitEcuFormSub(addEcuUrl, aemViewUrl);
+        }
+
+
+        
+    </script>
+    <script src="~/js/js_views/employeehealthinfo/_aemview.js?v7"></script>
+    <script src="~/js/js_views/employeehealthinfo/_ecu.js?v12"></script>
+    
+    <script src="~/js/js_views/employeehealthinfo/_ame.js?v5"></script>
+    
+    <script src="~/js/js_views/employeehealthinfo/_mwr.js?v1"></script>
+    
+
+    
+}
+
+

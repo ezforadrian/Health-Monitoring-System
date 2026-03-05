@@ -1,0 +1,185 @@
+﻿@using Newtonsoft.Json
+@Html.AntiForgeryToken()
+@model _VEHRSv1.Models.PemeReportViewModel
+<style>
+    input {
+        text-transform: uppercase;
+    }
+</style>
+
+<div class="container-fluid">
+    <div class="card o-hidden border-0 shadow-lg my-4">
+        <div class="card-body p-0">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="p-5">
+                        <div class="text-center">
+                            <h1 class="h4 text-gray-900 mb-4">Pre Employment Reports</h1>
+                        </div>
+                        <hr />
+                        <div class="form-group row">
+                            <div class="col-sm-4">
+                                <label class="col-form-label-sm">Encoded Start Date</label>
+                                <input type="date" class="form-control" id="EncodedStartDate" name="EncodedStartDate" />
+                                <span class="text-danger errClass" style="display:none;" id="errEncodedStartDate"></span>
+                            </div>
+                            <div class="col-sm-4">
+                                <label class="col-form-label-sm">Encoded End Date</label>
+                                <input type="date" class="form-control"  id="EncodedEndDate" name="EncodedEndDate" />
+                                <span class="text-danger errClass" style="display:none;" id="errEncodedEndDate"></span>
+                            </div>
+                            <div class="col-sm-4">
+                                <label class="col-form-label-sm">Status</label>
+                                <select class="form-control"  id="Status" name="Status">
+                                    <option></option>
+                                </select>
+                                <span class="text-danger errClass" style="display:none;" id="errStatus"></span>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-sm-12 mt-1 ">
+                                <button type="button" id="generatePemeReportPreviewBtn" class="btn btn-primary" onclick="generatePemeReportPreview()">Generate Report Preview</button>
+                                @* <button type="button" id="downloadPemeReportExcel" class="btn btn-success">Export Report (Excel)</button> *@
+                                <button type="button" id="downloadPemeReportPdf" class="btn btn-danger" onclick="generatePemeReportPDF()">Export Report (PDF)</button>
+                            </div>
+
+                        </div>
+
+                        <hr />
+                        <table class="table table-sm" id="pemeReportResult">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Full Name</th>
+                                    <th>BirthDate</th>
+                                    <th>Examination Date</th>
+                                    <th>Medical Evaluator</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            initDataTable();
+            initSelect2('#Status', '@Html.Raw(ViewBag.Status)', '@Model.ReportParamG.Status');
+        });
+
+        function initDataTable() {
+            $('#pemeReportResult').DataTable({
+                processing: true,
+                searching: false,
+                ordering: false,
+                pageLength: 10,
+                lengthMenu: [5, 10, 50],
+                language: { emptyTable: "No records found" }
+            });
+        }
+
+        function initSelect2(selector, data, selectedValue) {
+            $(selector).select2({
+                data: JSON.parse(data),
+                placeholder: "Start typing to search...",
+                allowClear: true,
+                width: '100%'
+            }).val(selectedValue).trigger('change');
+        }
+
+        function handleError(data) {
+            $('.errClass').hide();
+            data.errors.forEach(function (error) {
+                const field = error.includes('Status') ? '#errStatus' :
+                    error.includes('End Date') ? '#errEncodedEndDate' : '#errEncodedStartDate';
+                $(field).text(error).show();
+            });
+        }
+
+        function generateReport(url, data) {
+            $('.errClass').hide();
+            console.log(data);
+            var token = $('input[name="__RequestVerificationToken"]').val();
+            $.ajax({
+                url: url,
+                type: 'POST',
+                headers: { 'RequestVerificationToken': token },
+                data: data,
+                success: function (data) {
+                    console.log(data);
+                    if (data.success) {
+                        if (data.returnToViewAsJson) {
+                            console.log("A");
+                            populateTable(data.returnToViewAsJson.pemeReportResults);
+                        }
+                        if (data.link) {
+                            console.log("B");
+                            window.open(data.link, "_blank");
+                        }
+                    } else {
+                        handleError(data);
+                    }
+                }
+            });
+        }
+
+        function generatePemeReportPreview() {
+            $('.errClass').hide();
+            generateReport('/Report/GeneratePemeReportPreview', {
+                EncodedStartDate: $('#EncodedStartDate').val(),
+                EncodedEndDate: $('#EncodedEndDate').val(),
+                Status: $('#Status').val()
+            });
+        }
+
+        function generatePemeReportPDF() {
+            $('.errClass').hide();
+            generateReport('/Report/ValidatePemeParam', {
+                EncodedStartDate: $('#EncodedStartDate').val(),
+                EncodedEndDate: $('#EncodedEndDate').val(),
+                Status: $('#Status').val()
+            });
+        }
+
+        function populateTable(data) {
+            $('#pemeReportResult').DataTable().clear().destroy(); // Destroy the existing DataTable
+
+            const tableBody = $('#pemeReportResult tbody');
+            tableBody.empty(); // Clear existing table data
+            data.forEach(function (result, index) {
+                var row = `
+                    <tr>
+                        <td>${index + 1}</td>
+                        <td>${result.fullName}</td>
+                        <td>${new Date(result.birthDate).toLocaleDateString()}</td>
+                        <td>${new Date(result.examDate).toLocaleDateString()}</td>
+                        <td>${result.medicalEvaluator}</td>
+                        <td>${result.statusDescription}</td>
+                    </tr>`;
+                tableBody.append(row); // Add new data to the table
+            });
+
+            $('#pemeReportResult').DataTable({
+                processing: true,
+                searching: true,
+                ordering: false,
+                pageLength: 10,
+                lengthMenu: [5, 10, 50],
+                language: { emptyTable: "No records found" }
+            });
+        }
+
+
+
+
+    </script>
+}
+

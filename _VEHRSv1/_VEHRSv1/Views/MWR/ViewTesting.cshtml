@@ -1,0 +1,16 @@
+﻿@using System.Data
+
+
+<table>
+    <th>ITEM</th>
+    @foreach (DataRow row in Model.Rows)
+    {
+        <tr>
+            <td>@row["Items"]</td>
+        </tr>
+    }
+</table>
+
+@section Scripts{
+
+}

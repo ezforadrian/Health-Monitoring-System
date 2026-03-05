@@ -1,0 +1,103 @@
+﻿using _VEHRSv1.Interface;
+using _VEHRSv1.Models;
+using _VEHRSv1.Services;
+using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
+
+namespace _VEHRSv1.Controllers
+{
+    public class ReportController : Controller
+    {
+        private readonly IPEMERepository _pEMERepository;
+        private readonly IReportRepository _reportRepository;
+        private readonly EncryptionService _encryptionService;
+        private const string _key = "thequickbrownfox";
+        public ReportController(IPEMERepository pEMERepository, IReportRepository reportRepository, EncryptionService encryptionService)
+        {
+            _pEMERepository = pEMERepository;
+            _reportRepository = reportRepository;
+            _encryptionService = encryptionService;
+        }
+        public IActionResult Index()
+        {
+            return View();
+        }
+
+        public async Task<IActionResult> PemeReports()
+        {
+            var pemeStatus = await _pEMERepository.GetAllActivePemeStatus();
+            // Add the "All" value to the list
+            pemeStatus.Insert(0, new vmPemeStatus
+            {
+                IdEncrypt = _encryptionService.EncryptConstant(_key, "-100"),
+                StatusId = -100,
+                Description = "All"
+            });
+            ViewBag.Status = JsonConvert.SerializeObject(pemeStatus.Select(p => new { id = p.IdEncrypt, text = p.Description }));
+            var reportExport = await _reportRepository.GetAllActiveExportTypes();
+            ViewBag.ExportType = JsonConvert.SerializeObject(reportExport.Select(p => new { id = p.RefIdEnc, text = p.ReferenceDescription }));
+
+            var model = new PemeReportViewModel
+            {
+                ReportParamG = new ReportsParameterGeneric()
+            };
+
+            return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> GeneratePemeReportPreview(ReportsParameterGeneric model)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    var errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).ToList();
+                    return Json(new { success = false, errors = errors });
+                }
+
+                try
+                {
+                    int statusId = int.Parse(_encryptionService.DecryptConstant(_key, model.Status));
+
+                    // Ensure the nullable dates are provided
+                    if (model.EncodedStartDate.HasValue && model.EncodedEndDate.HasValue)
+                    {
+                        var pemeResult = _reportRepository.GetPemeReportResultByDateRangeAndStatusId(
+                            model.EncodedStartDate.Value,
+                            model.EncodedEndDate.Value,
+                            statusId
+                        );
+
+                        var returnToViewAsJson = new PemeReportViewModel
+                        {
+                            ReportParamG = model,
+                            PemeReportResults = pemeResult
+                        };
+
+                        return Json(new { success = true, returnToViewAsJson });
+                    }
+                    else
+                    {
+                        var errors = new List<string> { "Start date and end date are required." };
+                        return Json(new { success = false, errors = errors });
+                    }
+                }
+                catch (Exception ex)
+                {
+                    return Json(new { success = false, errors = new List<string> { "An error occurred while saving the record. Please try again." } });
+                }
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, errors = new List<string> { "An error occurred while processing the request." } });
+            }
+        }
+
+
+
+
+
+    }
+}

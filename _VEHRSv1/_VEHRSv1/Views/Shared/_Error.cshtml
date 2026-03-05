@@ -1,0 +1,16 @@
+﻿@model _VEHRSv1.Models.vmError
+
+@{
+    ViewData["Title"] = "Error";
+}
+
+<h1 class="text-danger">Error.</h1>
+<h2 class="text-danger">An error occurred while processing your request.</h2>
+
+@if (Model != null)
+{
+    <p>
+        <strong>Error Code:</strong> <code>@Model.Code</code><br>
+        <strong>Error Message:</strong> <code>@Model.Message</code>
+    </p>
+}

@@ -1,0 +1,89 @@
+﻿@{
+    ViewData["Title"] = "Search PEME Record";
+}
+
+<div class="container-fluid">
+    <div class="card o-hidden border-0 shadow-lg my-4">
+        <div class="card-body p-0">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="p-5">
+                        <div class="text-center">
+                            <h1 class="h4 text-gray-900 mb-4">Search Pre-Employment Record</h1>
+                        </div>
+
+                        <!-- Search Form -->
+                        <form id="searchForm" method="get">
+                            <input class="form-control" type="text" id="searchQuery" placeholder="Search by Employee ID or Name..."  autocomplete="off"/>
+                            @* <button type="button" id="searchBtn" class="btn btn-primary mt-2">Search</button> *@
+                        </form>
+                        <br />
+                        <!-- DataTable -->
+                        <table id="pemeTable" class="table table-striped table-hover" style="width:100%">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Employee ID</th>
+                                    <th>Full Name (FN MN LN)</th>
+                                    <th>Birthdate</th>
+                                    <th>Position</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                        </table>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        // Initialize DataTable with server-side processing
+        var dataTable = $('#pemeTable').DataTable({
+            "processing": true,
+            "serverSide": true,
+            "searching": false,
+            "ordering": false,
+            "ajax": {
+                "url": "@Url.Action("PemeSearchRecord", "SearchRecord")",
+                "type": "GET",
+                "data": function (d) {
+                    let query = $('#searchQuery').val();
+                    if (query.trim()) {
+                        d.searchQuery = query;
+                    }
+                }
+            },
+            "columns": [
+                { "data": "rowNumber" },
+                { "data": "idnumber" },
+                { "data": "fullName" },
+                { "data": "birthdate" },
+                { "data": "positionDescription" },
+                { "data": "statusDescription" },
+                { "data": "actions", "orderable": false, "searchable": false }
+            ]
+        });
+
+        // Trigger search on button click with debounce
+        let searchTimeout;
+        $('#searchQuery').on('input', function () {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(function () {
+                dataTable.ajax.reload();
+            }, 500); // Adjust debounce delay as needed
+        });
+
+
+        // Update button click event for each row
+        $('#pemeTable').on('click', '.update-btn', function () {
+            var recordId = $(this).data('id');
+            var updateUrl = '@Url.Action("UpdateRecord", "Peme")' + '?id=' + recordId;
+            window.location.href = updateUrl;
+        });
+    });
+</script>

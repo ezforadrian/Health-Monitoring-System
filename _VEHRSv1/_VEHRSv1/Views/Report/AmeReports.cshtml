@@ -1,0 +1,187 @@
+﻿@using Newtonsoft.Json
+@Html.AntiForgeryToken()
+@model _VEHRSv1.Models.AmeReportViewModel
+<style>
+    input {
+        text-transform: uppercase;
+    }
+</style>
+
+<div class="container-fluid">
+    <div class="card o-hidden border-0 shadow-lg my-4">
+        <div class="card-body p-0">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="p-5">
+                        <div class="text-center">
+                            <h1 class="h4 text-gray-900 mb-4">Annual Medical Examination Reports</h1>
+                        </div>
+                        <hr />
+                        <div class="form-group row">
+                            <div class="col-sm-4">
+                                <label class="col-form-label-sm">Start Date</label>
+                                <input type="date" class="form-control" id="StartDate" name="StartDate" />
+                                <span class="text-danger errClass" style="display:none;" id="errStartDate"></span>
+                            </div>
+                            <div class="col-sm-4">
+                                <label class="col-form-label-sm">End Date</label>
+                                <input type="date" class="form-control" id="EndDate" name="EndDate" />
+                                <span class="text-danger errClass" style="display:none;" id="errEndDate"></span>
+                            </div>
+                            <div class="col-sm-4">
+                                <label class="col-form-label-sm">Findings</label>
+                                <select class="form-control" id="Findings" name="Findings">
+                                    <option></option>
+                                </select>
+                                <span class="text-danger errClass" style="display:none;" id="errFindings"></span>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-sm-12 mt-1 ">
+                                <button type="button" id="generateAmeReportPreviewBtn" class="btn btn-primary" onclick="generateAmeReportPreview()">Generate Report Preview</button>
+                                <button type="button" id="downloadAmeReportPdf" class="btn btn-danger" onclick="generateAmeReportPDF()">Export Report (PDF)</button>
+                            </div>
+
+                        </div>
+
+                        <hr />
+                        <table class="table table-sm" id="ameReportResult">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>AME Date</th>
+                                    <th>Branch</th>
+                                    <th>ID Number</th>
+                                    <th>Name</th>
+                                    <th>Position</th>
+                                    <th>BirthMonth</th>
+                                    <th>Findings</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            initDataTable();
+            initSelect2('#Findings', '@Html.Raw(ViewBag.TestDetails)', '@Model.AmeReportParameters.Findings');
+        });
+
+        function initDataTable() {
+            $('#ameReportResult').DataTable({
+                processing: true,
+                searching: false,
+                ordering: false,
+                pageLength: 10,
+                lengthMenu: [5, 10, 50],
+                language: { emptyTable: "No records found" }
+            });
+        }
+
+        function initSelect2(selector, data, selectedValue) {
+            $(selector).select2({
+                data: JSON.parse(data),
+                placeholder: "Start typing to search...",
+                allowClear: true,
+                width: '100%'
+            }).val(selectedValue).trigger('change');
+        }
+
+        function handleError(data) {
+            $('.errClass').hide();
+            data.errors.forEach(function (error) {
+                const field = error.includes('Findings') ? '#errFindings' :
+                    error.includes('End Date') ? '#errEndDate' : '#errStartDate';
+                $(field).text(error).show();
+            });
+        }
+
+        function generateReport(url, data) {
+            $('.errClass').hide();
+            console.log(url);
+            console.log(data);
+            var token = $('input[name="__RequestVerificationToken"]').val();
+            $.ajax({
+                url: url,
+                type: 'POST',
+                headers: { 'RequestVerificationToken': token },
+                data: data,
+                success: function (data) {
+                    console.log(data);
+                    if (data.success) {
+                        if (data.returnToViewAsJson) {
+                            populateTable(data.returnToViewAsJson.ameReportResults);
+                        }
+                        if (data.link) {
+                            window.open(data.link, "_blank");
+                        }
+                    } else {
+                        handleError(data);
+                    }
+                }
+            });
+        }
+
+        function generateAmeReportPreview() {
+            $('.errClass').hide();
+            generateReport('/Report/GenerateAmeReportPreview', {
+                StartDate: $('#StartDate').val(),
+                EndDate: $('#EndDate').val(),
+                Findings: $('#Findings').val()
+            });
+        }
+
+        function generateAmeReportPDF() {
+            $('.errClass').hide();
+            generateReport('/Report/ValidateAmeParam', {
+                StartDate: $('#StartDate').val(),
+                EndDate: $('#EndDate').val(),
+                Findings: $('#Findings').val()
+            });
+        }
+
+        function populateTable(data) {
+            console.log(data);
+            $('#ameReportResult').DataTable().clear().destroy(); // Destroy the existing DataTable
+
+            const tableBody = $('#ameReportResult tbody');
+            tableBody.empty(); // Clear existing table data
+            data.forEach(function (result, index) {
+                var row = `
+                            <tr>
+                                <td>${index + 1}</td>
+                                <td>${new Date(result.ameDate).toLocaleDateString()}</td>
+                                <td>${result.branch}</td>
+                                <td>${result.idNumber}</td>
+                                <td>${result.name}</td>
+                                <td>${result.position}</td>
+                                <td>${result.birthMonth}</td>
+                                <td>${result.combinedFindings}</td>
+                            </tr>`;
+                tableBody.append(row); // Add new data to the table
+            });
+
+            $('#ameReportResult').DataTable({
+                processing: true,
+                searching: true,
+                ordering: false,
+                pageLength: 10,
+                lengthMenu: [5, 10, 50],
+                language: { emptyTable: "No records found" }
+            });
+        }
+
+
+
+
+    </script>
+}
+

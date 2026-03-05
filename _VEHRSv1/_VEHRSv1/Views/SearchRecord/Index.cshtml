@@ -1,0 +1,66 @@
+﻿@{
+    ViewData["Title"] = "Search Records";
+}
+
+<nav>
+    <div class="nav nav-tabs" id="nav-tab" role="tablist">
+        <button class="nav-link active" id="nav-peme-tab" data-bs-toggle="tab" data-bs-target="#nav-peme" type="button" role="tab" aria-controls="nav-peme" aria-selected="true">PEME Records</button>
+        <button class="nav-link" id="nav-recordswithid-tab" data-bs-toggle="tab" data-bs-target="#nav-recordswithid" type="button" role="tab" aria-controls="nav-recordswithid" aria-selected="false">AME / ECU / Others</button>
+    </div>
+</nav>
+<div class="tab-content" id="nav-tabContent">
+    <div class="tab-pane fade show active" id="nav-peme" role="tabpanel" aria-labelledby="nav-peme-tab"></div>
+    <div class="tab-pane fade" id="nav-recordswithid" role="tabpanel" aria-labelledby="nav-recordswithid-tab"></div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        function loadTabContent(tabId, viewName) {
+            var target = $(tabId);
+            var viewUrl = '/SearchRecord/GetView?viewName=' + encodeURIComponent(viewName);
+
+            // Show loading indicator in the tab
+            target.html('<div class="loading">Loading, please wait...</div>');
+
+            $.get(viewUrl, function (data) {
+                target.html(data).addClass('show active');
+            }).fail(function () {
+                target.html('<div class="error">Error loading view</div>');
+            });
+        }
+
+        // Preload content for the active tab
+        loadTabContent('#nav-peme', 'nav-peme-tab');
+
+        // Handle tab clicks
+        $('#nav-tab .nav-link').on('click', function (e) {
+            e.preventDefault();
+
+            var target = $(this).data('bs-target');
+            var viewName = $(this).attr('id');
+
+            // Only load content if the tab is not already loaded
+            if (!$(target).hasClass('loaded')) {
+                loadTabContent(target, viewName);
+                $(target).addClass('loaded');
+            }
+
+            // Set the clicked tab as active
+            $(this).addClass('active').siblings().removeClass('active');
+            $(target).addClass('show active').siblings().removeClass('show active');
+        });
+    });
+</script>
+
+<style>
+    .loading {
+        text-align: center;
+        padding: 20px;
+    }
+
+    .error {
+        text-align: center;
+        padding: 20px;
+        color: red;
+    }
+</style>

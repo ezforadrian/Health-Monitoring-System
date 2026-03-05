@@ -1,0 +1,121 @@
+﻿using _VEHRSv1.Interface;
+
+namespace _VEHRSv1.Services
+{
+    public class FileValidationServices : IFileValidationService
+    {
+        private readonly string[] _allowedExtensions = { ".xlsx", ".xls" };
+        private readonly long _maxFileSize = 10 * 1024 * 1024; // 10 MB
+
+        public DateTime ConvertToDateTime(string dateString)
+        {
+            try
+            {
+                if (DateTime.TryParse(dateString, out DateTime parsedDate))
+                {
+                    // Ensure the date is within SQL Server's valid range
+                    if (parsedDate < (DateTime)System.Data.SqlTypes.SqlDateTime.MinValue.Value || parsedDate > (DateTime)System.Data.SqlTypes.SqlDateTime.MaxValue.Value)
+                    {
+                        return (DateTime)System.Data.SqlTypes.SqlDateTime.MinValue.Value;
+                    }
+                    return parsedDate;
+                }
+                else
+                {
+                    return (DateTime)System.Data.SqlTypes.SqlDateTime.MinValue.Value;
+                }
+            }
+            catch (Exception)
+            {
+                // Return SQL Server's minimum datetime value in case of an error
+                return (DateTime)System.Data.SqlTypes.SqlDateTime.MinValue.Value;
+            }
+        }
+
+        public DateOnly ConvertToDateOnly(string dateString)
+        {
+            try
+            {
+                if (DateTime.TryParse(dateString, out DateTime parsedDateTime))
+                {
+                    DateTime sqlMinValue = (DateTime)System.Data.SqlTypes.SqlDateTime.MinValue.Value;
+                    DateTime sqlMaxValue = (DateTime)System.Data.SqlTypes.SqlDateTime.MaxValue.Value;
+
+                    // Ensure the date is within SQL Server's valid range
+                    if (parsedDateTime < sqlMinValue || parsedDateTime > sqlMaxValue)
+                    {
+                        return DateOnly.FromDateTime(sqlMinValue);
+                    }
+
+                    return DateOnly.FromDateTime(parsedDateTime);
+                }
+                else
+                {
+                    return DateOnly.FromDateTime((DateTime)System.Data.SqlTypes.SqlDateTime.MinValue.Value);
+                }
+            }
+            catch (Exception)
+            {
+                // Return SQL Server's minimum datetime value in case of an error
+                return DateOnly.FromDateTime((DateTime)System.Data.SqlTypes.SqlDateTime.MinValue.Value);
+            }
+        }
+
+
+
+
+
+        public int ConvertToInt(string value)
+        {
+            if (int.TryParse(value, out int idNum))
+            {
+                return idNum;
+            }
+
+            // Return the earliest default date if parsing fails
+            return 0;
+        }
+
+        public bool CovertToNullableBool(string value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                return false; // Empty or null string means false
+            }
+
+            // Check if the value is "1" or any other non-empty string
+            return value.Trim() == "1" ? true : false;
+        }
+
+        public async Task<(bool IsValid, string ErrorMessage)> ValidateFileAsync(IFormFile file)
+        {
+            if (file == null || file.Length == 0)
+            {
+                return (false, "No file selected.");
+            }
+
+            // Validate file extension
+            var fileExtension = Path.GetExtension(file.FileName).ToLowerInvariant();
+            if (!_allowedExtensions.Contains(fileExtension))
+            {
+                return (false, "Invalid file type. Only .xlsx and .xls files are allowed.");
+            }
+
+            // Validate content type
+            var contentType = file.ContentType.ToLowerInvariant();
+            if (contentType != "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" &&
+                contentType != "application/vnd.ms-excel")
+            {
+                return (false, "Invalid file type. Only Excel files are allowed.");
+            }
+
+            // Optional: Check file size
+            if (file.Length > _maxFileSize)
+            {
+                return (false, $"File size exceeds the maximum allowed size of {_maxFileSize / (1024 * 1024)} MB.");
+            }
+
+            return (true, string.Empty);
+        }
+    }
+}

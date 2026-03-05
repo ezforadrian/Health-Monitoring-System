@@ -1,0 +1,93 @@
+﻿@{
+    ViewData["Title"] = "Employee List";
+}
+
+<div class="container-fluid">
+    <div class="card o-hidden border-0 shadow-lg my-4">
+        <div class="card-body p-0">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="p-5">
+                        <div class="text-center">
+                            <h1 class="h4 text-gray-900 mb-4">Search Employee</h1>
+                        </div>
+
+                        <!-- Search Form -->
+                        <form id="searchForm" method="get">
+                            <input class="form-control" type="text" id="searchQuery" placeholder="Search by Employee ID or Name..." autocomplete="off" />
+                        </form>
+                        <br />
+                        <!-- DataTable -->
+                        <table id="employeeTable" class="table table-striped table-hover" style="width:100%">
+                            <thead>
+                                <tr>
+                                    <th>ID Number</th>
+                                    <th>Full Name</th>
+                                    <th>Date Hired</th>
+                                    <th>Position</th>
+                                    <th>Birth Date</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                        </table>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            var dataTable = $('#employeeTable').DataTable({
+                processing: true,
+                serverSide: true,
+                searching: false, // Enable searching
+                ordering: false,
+                ajax: {
+                    url: '@Url.Action("GetEmployeeListAS400", "SearchRecord")',
+                    type: 'GET',
+                    data: function (d) {
+                        d.searchValue = $('#searchQuery').val(); // Get the search value
+                    }
+                },
+                columns: [
+                    { data: 'idNumber' },
+                    { data: 'fullName' },
+                    {
+                        data: 'datehired', render: function (data) {
+                            return new Date(data).toLocaleDateString(); // Format the date
+                        }
+                    },
+                    { data: 'position' },
+                    {
+                        data: 'birthDate', render: function (data) {
+                            return new Date(data).toLocaleDateString(); // Format the date
+                        }
+                    },
+                    { data: 'actions', orderable: false, searchable: false }
+                ],
+                order: [[1, 'asc']]
+            });
+
+            // Trigger search on input change with debounce
+            let searchTimeout;
+            $('#searchQuery').on('input', function () {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(function () {
+                    dataTable.ajax.reload(); // Reload the DataTable on search input
+                }, 500);
+            });
+
+            $('#employeeTable').on('click', '.view-btn', function () {
+                var recordId = $(this).data('id');
+                console.log('Record ID:', recordId);
+                var updateUrl = '@Url.Action("AEMView", "EmployeeHealthInfo")' + '?id=' + recordId;
+                window.location.href = updateUrl;
+            });
+        });
+
+    </script>
+}

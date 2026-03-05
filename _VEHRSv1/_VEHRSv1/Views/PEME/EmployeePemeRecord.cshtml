@@ -1,0 +1,287 @@
+﻿@model vmPemeEmployeeRecord
+<style>
+    input {
+        text-transform: uppercase;
+    }
+
+</style>
+
+<div class="container-fluid">
+    <div class="card o-hidden border-0 shadow-lg my-4">
+        <div class="card-body p-0">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="p-5">
+                        <div class="text-center">
+                            <h1 class="h4 text-gray-900 mb-4">Pre-Employment Record</h1>
+                        </div>
+                        <hr />
+                        @if (TempData["SuccessMessage"] != null)
+                        {
+                            <div class="alert alert-success" style="display: block;">@TempData["SuccessMessage"]</div>
+                        }
+                        else
+                        {
+                            <div class="alert alert-success" style="display: none;"></div>
+                        }
+
+                        <form id="pemeForm" class="user" asp-action="UpdatePemeHeaderRecord" method="post" autocomplete="off" >
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" asp-for="PemeidString" name="PemeidString" />
+                            <!-- Personal Details -->
+                            <div class="form-group row">
+                                <div class="col-sm-4">
+                                    <label class="col-form-label-sm">Last Name</label>
+                                    <input type="text" class="form-control" asp-for="LastName" name="LastName" placeholder="Last Name" readonly />
+                                    <span asp-validation-for="LastName" class="text-danger"></span>
+                                </div>
+                                <div class="col-sm-4">
+                                    <label class="col-form-label-sm">First Name</label>
+                                    <input type="text" class="form-control" asp-for="FirstName" name="FirstName" placeholder="First Name" readonly />
+                                    <span asp-validation-for="FirstName" class="text-danger"></span>
+                                </div>
+                                <div class="col-sm-4">
+                                    <label class="col-form-label-sm">Middle Name</label>
+                                    <input type="text" class="form-control" asp-for="MiddleName" name="MiddleName" placeholder="Middle Name" readonly />
+                                    <span asp-validation-for="MiddleName" class="text-danger"></span>
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                <div class="col-sm-4">
+                                    <label class="col-form-label-sm">Birthdate</label>
+                                    <input type="date" class="form-control" asp-for="Birthdate" id="Birthdate" name="Birthdate" readonly />
+                                    <span asp-validation-for="Birthdate" class="text-danger" style="display:none;"></span> <!-- Ensure it's hidden by default -->
+                                </div>
+
+                                <div class="col-sm-8">
+                                    <label class="col-form-label-sm">Position</label>
+                                    <select class="form-control" asp-for="Position" id="Position" name="Position" disabled>
+                                        <option></option>
+                                    </select>
+                                    <span asp-validation-for="Position" class="text-danger" style="display:none;"></span> <!-- Ensure it's hidden by default -->
+                                </div>
+                            </div>
+
+
+                            <div class="form-group row">
+                                <div class="col-sm-4">
+                                    <label class="col-form-label-sm">Status</label>
+                                    <select class="form-control" asp-for="Status" id="Status" name="Status" disabled>
+                                        <option></option>
+                                    </select>
+                                    <span asp-validation-for="Status" class="text-danger"></span>
+                                </div>
+                                <div class="col-sm-8">
+                                    <label class="col-form-label-sm">Employee Id Number</label>
+                                    <div class="row">
+                                        <div class="col-sm-6">
+                                            <input type="text" class="form-control" asp-for="Idnumber" name="IdNumber" readonly />
+                                        </div>
+                                        <div class="col-sm-3">
+                                            @{
+                                                if (Model.Idnumber == "Not Available" || string.IsNullOrEmpty(Model.Idnumber))
+                                                {
+                                                        <button type="button" id="linkIdNumber" class="btn btn-success btn-block" data-bs-toggle="modal" data-bs-target="#linkIdNumberModal">Link Id Number</button>
+                                                }
+                                            }
+                                        </div>
+                                    </div>
+                                    <span asp-validation-for="Idnumber" class="text-danger"></span>
+                                </div>
+                            </div>
+
+                            <button type="button" id="editRecordBtn" class="btn btn-primary">Edit Record</button>
+                            <button type="button" id="UpdateRecordBtn" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#updateConfirmationModal">Update Record</button>
+
+                        </form>
+                        <hr />
+                        <div class="text-center">
+                            <h1 class="h4 text-gray-900 mb-4">Pre-Employment Details</h1>
+                        </div>
+                        @* <div class="text-left">
+                            <button type="button" id="addDetailBtn" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addDetailModal">Add Peme Detail</button>
+                        </div> *@
+                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addDetailModal" data-action="add">
+                            Add Pre Employment Detail
+                        </button>
+                        <br />
+                        <table class="table table-sm" id="pemeDetailsTable">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Medical Examination Date</th>
+                                    <th>Medical Evaluator</th>
+                                    <th>Remarks</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @{
+                                    int d = 1;
+                                }
+                                @foreach (var detail in Model.PemeDetails)
+                                {
+                                    <tr>
+                                        <td>@d</td>
+                                        <td>@detail.ExamDate.ToString("MM/dd/yyyy")</td>
+                                        <td>@detail.MedicalEvaluatorName</td>
+                                        <td>@detail.Remarks</td>
+                                        <td>
+                                            <button type="button" class="btn btn-info edit-detail-btn" data-bs-toggle="modal" data-bs-target="#addDetailModal"
+                                                    data-action="edit"
+                                                    data-detailid="@detail.DetailIdString"
+                                                    data-pemeid="@detail.PemeIdString"
+                                                    data-mdid="@detail.MedicalEvaluatorIdString"
+                                                    data-examdate="@detail.ExamDate.ToString("yyyy-MM-dd")"
+                                                    data-remarks="@(!string.IsNullOrEmpty(detail.Remarks) ? detail.Remarks : "N/A")">
+                                                Edit
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    d++;
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="linkIdNumberModal" tabindex="-1" aria-labelledby="linkIdNumberModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="linkIdNumberModalLabel">Link Id Number</h5>
+            </div>
+            <div class="modal-body">
+                <!-- Modal body content -->
+                <p>Here you can link the Id Number.</p>
+                <input type="text" class="form-control" placeholder="Enter Id Number" />
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="editRecordBtn" class="btn btn-primary">Edit Record</button>
+                <button type="submit" id="UpdateRecordBtn" class="btn btn-warning" style="display: none;">Update Record</button>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Update Confirmation Modal -->
+<div class="modal fade" id="updateConfirmationModal" tabindex="-1" aria-labelledby="updateConfirmationModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="updateConfirmationModalLabel">Confirm Update</h5>
+                </div>
+            <div class="modal-body">
+                <p>Are you sure you want to update this record?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" id="confirmUpdateBtn" class="btn btn-primary">Confirm Update</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add / Edit Peme Detail Modal -->
+<div class="modal fade" id="addDetailModal" tabindex="-1" aria-labelledby="addDetailModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addDetailModalLabel">Add Pre Employment Detail</h5>
+            </div>
+            <div class="modal-body">
+                <form id="addPemeDetailForm" autocomplete="off">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="PemeIdString" id="PemeIdStringModal" value="@Model.PemeidString" />
+                    <input type="hidden" name="PemeDetailString" id="PemeDetailStringModal"  />
+                    <div class="form-group">
+                        <label for="ExamDate">Medical Examination Date</label>
+                        <input type="date" class="form-control" name="ExamDate" id="ExamDate" required />
+                    </div>
+                    <div class="form-group">
+                        <label for="MedicalEvaluatorModal">Medical Evaluator</label>
+                        <select class="form-control" name="MedicalEvaluatorIdString" id="MedicalEvaluatorModal" required></select>
+                    </div>
+                    <div class="form-group">
+                        <label for="Remarks">Remarks</label>
+                        <textarea class="form-control" id="Remarks" name="Remarks" required></textarea>
+                    </div>
+                    <div id="errorList" class="text-danger mt-2"></div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" id="confirmSaveDetailBtn" class="btn btn-primary">Save Detail</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+
+
+<!-- Confirmation Modal -->
+<div class="modal fade" id="addDetailConfirmationModal" tabindex="-1" aria-labelledby="addDetailConfirmationModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addDetailConfirmationModalLabel">Confirm Save</h5>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to save these details?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" id="confirmSaveDetailBtn" class="btn btn-primary">Confirm</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Include necessary JavaScript/jQuery libraries -->
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            // Initialize select2 with data and set selected value if available
+            $('#Position').select2({
+                data: @Html.Raw(ViewBag.Position),
+                placeholder: "Start typing to search...",
+                allowClear: true,
+                width: '100%'
+            }).val('@Model.Position').trigger('change');
+
+            $('#Status').select2({
+                data: @Html.Raw(ViewBag.Status),
+                placeholder: "Start typing to search...",
+                allowClear: true,
+                width: '100%'
+            }).val('@Model.Status').trigger('change');
+
+            $('#MedicalEvaluatorModal').select2({
+                data: @Html.Raw(ViewBag.MedicalEvaluator),
+                placeholder: "Start typing to search...",
+                allowClear: true,
+                width: '100%'
+            }).val('@Model.MedicalEvaluator').trigger('change');
+
+            // Handle the confirmation button click
+            $('#confirmUpdateBtn').click(function () {
+                $('#pemeForm').submit(); // Submit the form
+                $('#updateConfirmationModal').modal('hide'); // Close the modal
+            });
+        });
+    </script>
+    <script src="~/js//js_views/peme/_employeepemerecord.js?v1"></script>
+}

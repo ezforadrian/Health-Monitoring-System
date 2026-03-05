@@ -1,0 +1,3 @@
+﻿<Project>
+  <Import Project="..\build\_VEHRSv1.props" />
+</Project>

@@ -1,0 +1,75 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "E:\\WEBSITE REFERENCE\\_VEHRSv1_conso_wLogo\\_VEHRSv1_conso_wLogo\\_VEHRSv1\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{7654C572-3938-454B-957C-9972F58C2403}|_VEHRSv1\\_VEHRSv1.csproj|e:\\website reference\\_vehrsv1_conso_wlogo\\_vehrsv1_conso_wlogo\\_vehrsv1\\_vehrsv1\\wwwroot\\js\\home\\_homelogin.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}",
+      "RelativeMoniker": "D:0:0:{7654C572-3938-454B-957C-9972F58C2403}|_VEHRSv1\\_VEHRSv1.csproj|solutionrelative:_vehrsv1\\wwwroot\\js\\home\\_homelogin.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{7654C572-3938-454B-957C-9972F58C2403}|_VEHRSv1\\_VEHRSv1.csproj|e:\\website reference\\_vehrsv1_conso_wlogo\\_vehrsv1_conso_wlogo\\_vehrsv1\\_vehrsv1\\views\\home\\login.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{7654C572-3938-454B-957C-9972F58C2403}|_VEHRSv1\\_VEHRSv1.csproj|solutionrelative:_vehrsv1\\views\\home\\login.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{7654C572-3938-454B-957C-9972F58C2403}|_VEHRSv1\\_VEHRSv1.csproj|e:\\website reference\\_vehrsv1_conso_wlogo\\_vehrsv1_conso_wlogo\\_vehrsv1\\_vehrsv1\\views\\home\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{7654C572-3938-454B-957C-9972F58C2403}|_VEHRSv1\\_VEHRSv1.csproj|solutionrelative:_vehrsv1\\views\\home\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 1,
+          "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{1c4feeaa-4718-4aa9-859d-94ce25d182ba}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "_homelogin.js",
+              "DocumentMoniker": "E:\\WEBSITE REFERENCE\\_VEHRSv1_conso_wLogo\\_VEHRSv1_conso_wLogo\\_VEHRSv1\\_VEHRSv1\\wwwroot\\js\\Home\\_homelogin.js",
+              "RelativeDocumentMoniker": "_VEHRSv1\\wwwroot\\js\\Home\\_homelogin.js",
+              "ToolTip": "E:\\WEBSITE REFERENCE\\_VEHRSv1_conso_wLogo\\_VEHRSv1_conso_wLogo\\_VEHRSv1\\_VEHRSv1\\wwwroot\\js\\Home\\_homelogin.js",
+              "RelativeToolTip": "_VEHRSv1\\wwwroot\\js\\Home\\_homelogin.js",
+              "ViewState": "AgIAAC8AAAAAAAAAAAAUwFUAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001646|",
+              "WhenOpened": "2026-01-16T09:58:12.327Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "Login.cshtml",
+              "DocumentMoniker": "E:\\WEBSITE REFERENCE\\_VEHRSv1_conso_wLogo\\_VEHRSv1_conso_wLogo\\_VEHRSv1\\_VEHRSv1\\Views\\Home\\Login.cshtml",
+              "RelativeDocumentMoniker": "_VEHRSv1\\Views\\Home\\Login.cshtml",
+              "ToolTip": "E:\\WEBSITE REFERENCE\\_VEHRSv1_conso_wLogo\\_VEHRSv1_conso_wLogo\\_VEHRSv1\\_VEHRSv1\\Views\\Home\\Login.cshtml",
+              "RelativeToolTip": "_VEHRSv1\\Views\\Home\\Login.cshtml",
+              "ViewState": "AgIAACcAAAAAAAAAAAAcwE4AAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-01-16T09:57:49.257Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "Index.cshtml",
+              "DocumentMoniker": "E:\\WEBSITE REFERENCE\\_VEHRSv1_conso_wLogo\\_VEHRSv1_conso_wLogo\\_VEHRSv1\\_VEHRSv1\\Views\\Home\\Index.cshtml",
+              "RelativeDocumentMoniker": "_VEHRSv1\\Views\\Home\\Index.cshtml",
+              "ToolTip": "E:\\WEBSITE REFERENCE\\_VEHRSv1_conso_wLogo\\_VEHRSv1_conso_wLogo\\_VEHRSv1\\_VEHRSv1\\Views\\Home\\Index.cshtml",
+              "RelativeToolTip": "_VEHRSv1\\Views\\Home\\Index.cshtml",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-01-16T09:57:44.119Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

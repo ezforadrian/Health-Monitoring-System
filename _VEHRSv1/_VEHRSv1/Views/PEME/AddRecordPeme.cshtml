@@ -1,0 +1,167 @@
+﻿@model vmSavePemeRecord
+
+<div class="container">
+    <div class="card o-hidden border-0 shadow-lg my-4">
+        <div class="card-body p-0">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="p-5">
+                        <div class="text-center">
+                            <h1 class="h4 text-gray-900 mb-4">Pre-Employment Record</h1>
+                        </div>
+                        <hr />
+                        @if (TempData["SuccessMessage"] != null)
+                        {
+                            <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+                        }
+
+                        @if (!ViewData.ModelState.IsValid)
+                        {
+                            <div class="alert alert-danger">
+                                @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                            </div>
+                        }
+
+                        <form id="pemeForm" class="user" asp-action="SavePemeRecord" method="post" autocomplete="off">
+                            @Html.AntiForgeryToken()
+                            <!-- Personal Details -->
+                            <div class="form-group row">
+                                <div class="col-sm-4">
+                                    <label class="col-form-label-sm">Last Name</label>
+                                    <input type="text" class="form-control" asp-for="LastName" placeholder="Last Name" />
+                                    <span asp-validation-for="LastName" class="text-danger"></span>
+                                </div>
+                                <div class="col-sm-4">
+                                    <label class="col-form-label-sm">First Name</label>
+                                    <input type="text" class="form-control" asp-for="FirstName" placeholder="First Name" />
+                                    <span asp-validation-for="FirstName" class="text-danger"></span>
+                                </div>
+                                <div class="col-sm-4">
+                                    <label class="col-form-label-sm">Middle Name</label>
+                                    <input type="text" class="form-control" asp-for="MiddleName" placeholder="Middle Name" />
+                                    <span asp-validation-for="MiddleName" class="text-danger"></span>
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                <div class="col-sm-4">
+                                    <label class="col-form-label-sm">Birthdate</label>
+                                    <input type="date" class="form-control" asp-for="Birthdate" />
+                                    <span asp-validation-for="Birthdate" class="text-danger"></span>
+                                </div>
+                                <div class="col-sm-8">
+                                    <label class="col-form-label-sm">Position</label>
+                                    <select class="form-control" asp-for="Position">
+                                        <option></option>
+                                    </select>
+                                    <span asp-validation-for="Position" class="text-danger"></span>
+                                </div>
+                            </div>
+
+                            <!-- Dates -->
+                            <div class="form-group row">
+                                <div class="col-sm-4">
+                                    <label class="col-form-label-sm">Medical Exam Date</label>
+                                    <input type="date" class="form-control" asp-for="MedicalExamDate" />
+                                    <span asp-validation-for="MedicalExamDate" class="text-danger"></span>
+                                </div>
+                                <div class="col-sm-8">
+                                    <label class="col-form-label-sm">Medical Evaluator</label>
+                                    <select class="form-control" asp-for="MedicalEvaluator">
+                                        <option></option>
+                                    </select>
+                                    <span asp-validation-for="MedicalEvaluator" class="text-danger"></span>
+                                </div>
+                            </div>
+
+                            <!-- Status and Evaluator -->
+                            <div class="form-group row">
+                                <div class="col-sm-6">
+                                    <label class="col-form-label-sm">Status</label>
+                                    <select class="form-control" asp-for="Status">
+                                        <option></option>
+                                    </select>
+                                    <span asp-validation-for="Status" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <div class="col-sm-12">
+                                    <label class="col-form-label-sm">Remarks</label>
+                                    <textarea class="form-control" asp-for="Remarks"></textarea>
+                                    <span asp-validation-for="Remarks" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <hr />
+                            <button type="button" id="confirmSaveBtnModal" class="btn btn-primary btn-user btn-block" data-bs-toggle="modal" data-bs-target="#saveConfirmationModal">Save Record</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Save Confirmation Modal -->
+<div class="modal fade" id="saveConfirmationModal" tabindex="-1" aria-labelledby="saveConfirmationModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="saveConfirmationModalLabel">Confirm Save</h5>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to save this record?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" id="confirmSaveBtn" class="btn btn-primary">Confirm Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            $('#Position').select2({
+                data: @Html.Raw(ViewBag.Position),
+                placeholder: "Start typing to search...",
+                allowClear: true
+            }).val('@Model.Position').trigger('change');
+
+            $('#Status').select2({
+                data: @Html.Raw(ViewBag.Status),
+                placeholder: "Start typing to search...",
+                allowClear: true
+            }).val('@Model.Status').trigger('change');
+
+            $('#MedicalEvaluator').select2({
+                data: @Html.Raw(ViewBag.MedicalEvaluator),
+                placeholder: "Start typing to search...",
+                allowClear: true
+            }).val('@Model.MedicalEvaluator').trigger('change');
+
+            // Prevent form submission on form's submit event
+            $('#pemeForm').on('submit', function (e) {
+                e.preventDefault(); // Prevent form submission by default
+            });
+
+            // Handle the confirmation button click
+            $('#confirmSaveBtn').click(function () {
+                //console.log("A");
+                var form = $('#pemeForm'); // Reference the form here
+                var isValid = form.valid();
+
+                if (isValid) {
+                    form.off('submit').submit(); // Unbind the submit event and submit the form
+                    $('#saveConfirmationModal').modal('hide'); // Close the modal
+                } else {
+                    //console.log('Form validation failed');
+                    $('#saveConfirmationModal').modal('hide'); // Close the modal
+                }
+            });
+        });
+    </script>
+}

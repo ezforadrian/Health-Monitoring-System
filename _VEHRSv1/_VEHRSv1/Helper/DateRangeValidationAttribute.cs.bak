@@ -1,0 +1,43 @@
+﻿using System;
+using System.ComponentModel.DataAnnotations;
+using System.Reflection;
+
+namespace _VEHRSv1.Helper
+{
+    public class DateRangeValidationAttribute : ValidationAttribute
+    {
+        private readonly string _comparisonProperty;
+
+        public DateRangeValidationAttribute(string comparisonProperty)
+        {
+            _comparisonProperty = comparisonProperty;
+        }
+
+        protected override ValidationResult IsValid(object value, ValidationContext validationContext)
+        {
+            var currentValue = value as DateOnly?;
+            var comparisonProperty = validationContext.ObjectType.GetProperty(_comparisonProperty);
+
+            if (comparisonProperty == null)
+            {
+                return new ValidationResult($"Unknown property: {_comparisonProperty}");
+            }
+
+            var comparisonValue = comparisonProperty.GetValue(validationContext.ObjectInstance) as DateOnly?;
+
+            if (currentValue.HasValue && comparisonValue.HasValue)
+            {
+                if (comparisonProperty.Name == "EncodedStartDate" && currentValue > comparisonValue)
+                {
+                    return new ValidationResult("Encoded start date should not be greater than encoded end date.");
+                }
+                if (comparisonProperty.Name == "EncodedEndDate" && currentValue < comparisonValue)
+                {
+                    return new ValidationResult("Encoded end date should not be less than encoded start date.");
+                }
+            }
+
+            return ValidationResult.Success;
+        }
+    }
+}
